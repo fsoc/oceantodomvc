@@ -1,3 +1,6 @@
+var ENTER_KEY = 13;
+var todos = new TodoList();
+
 var Todo = Class.extend({
   init: function(value) {
     this.value = value;
@@ -26,8 +29,6 @@ var TodoList = Class.extend({
   }
 });
 
-var todos = new TodoList();
-
 var InputBox = FocusWidget.extend({
   init: function() {
       // This function exists because createInputElement contains
@@ -42,7 +43,7 @@ var InputBox = FocusWidget.extend({
   onBrowserEvent: function(event) {
     if (this.enterListener) {
       // Only listen on keypresses with ENTER
-      if(event.which === 13) {
+      if(event.which === ENTER_KEY) {
         this.enterListener(this, event);
       }
     }
