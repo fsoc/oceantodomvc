@@ -4,6 +4,9 @@ var Todo = Class.extend({
     this.value = value;
     this.completed = false;
   },
+  isCompleted: function() {
+    return this.completed;
+  },
   setCompleted: function(completed) {
     this.completed = completed;
   },
@@ -98,6 +101,7 @@ var headerView = FlowPanel.extend({
 
         todos.add(todo);
         console.log("added "+text+" count "+todos.size());
+        window.nc.postNotification("add-todo", null);
         input.clear();
       }
     });
@@ -108,15 +112,24 @@ var headerView = FlowPanel.extend({
 
 var mainView = FlowPanel.extend({
   init: function() {
+    var that = this;
     this._super();
     this.setId("main");
     this.render();
+
+    window.nc.addListener("add-todo", function(todo) {
+      that.render();
+    });
   },
   render: function() {
     //If there are no items, hide me
     if(todos.size() === 0) {
       this.setStyle("display","none");
     } else {
+      this.clear();
+      // This is an ugly version in use because there is no framework support for this
+      this.getElement().removeAttribute("style");
+
       var toggleAll = new Widget();
       toggleAll.setElement(html.input({"id":"toggle-all","type":"checkbox"}));
       this.add(toggleAll);
@@ -135,14 +148,18 @@ var mainView = FlowPanel.extend({
         var todo = todos.get(i);
         var li = new FlowPanel();
         li.setElement(html.li());
-        li.setAttr("class","completed");
 
         var checkBox = new Widget();
         checkBox.setElement(html.input({"type":"checkbox","class":"toggle"}));
+        if(todo.isCompleted()) {
+          li.setStyleName("completed");
+          // This is an ugly version in use because there is no framework support for this
+          checkBox.getElement().setAttribute("checked","");
+        }
         li.add(checkBox);
 
         var task1Label = new Widget();
-        task1Label.setElement(html.label("hardcoded todo."));
+        task1Label.setElement(html.label(todo.getValue()));
         li.add(task1Label);
 
         var task1Button = new Widget();
