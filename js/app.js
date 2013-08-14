@@ -78,11 +78,17 @@ var headerView = FlowPanel.extend({
     input.setAttr("autofocus","autofocus");
     input.setId("new-todo");
 
-    input.addEnterListener(function() { 
-      var todo = new Todo(input.value); 
-      todos.add(todo);
-      console.log("added "+input.getText()+" count "+todos.size());
-      input.clear();
+    input.addEnterListener(function() {
+      var text = input.getText();
+      // Only add non-empty tasks, note that trim() is not supported
+      // by IE <= 8 but since this is an TodoMVC app, that is okay
+      if(text.trim() !== "") {
+        var todo = new Todo(text); 
+
+        todos.add(todo);
+        console.log("added "+text+" count "+todos.size());
+        input.clear();
+      }
     });
 
     this.add(input);
