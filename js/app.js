@@ -19,6 +19,9 @@ var TodoList = Class.extend({
   add: function(todo) {
     this.todos.push(todo);
   },
+  get: function(id) {
+    return this.todos[id];
+  },
   remove: function(id) {
     delete this.todos[id];
   },
@@ -28,6 +31,7 @@ var TodoList = Class.extend({
   setAllCompleted: function(completed) {
     for(var i=0; i<this.todos.length; i++) {
       this.todos[i].setCompleted(completed);
+    }
   }
 });
 
@@ -121,23 +125,28 @@ var mainView = FlowPanel.extend({
     ul.setElement(html.ul());
     ul.setId("todo-list");
 
-    var li = new FlowPanel();
-    li.setElement(html.li());
-    li.setAttr("class","completed");
+    console.log("render mainView with "+todos.size()+" todos");
 
-    var checkBox = new Widget();
-    checkBox.setElement(html.input({"type":"checkbox","class":"toggle"}));
-    li.add(checkBox);
+    for(var i=0; i< todos.size(); i++) {
+      var todo = todos.get(i);
+      var li = new FlowPanel();
+      li.setElement(html.li());
+      li.setAttr("class","completed");
 
-    var task1Label = new Widget();
-    task1Label.setElement(html.label("hardcoded todo."));
-    li.add(task1Label);
+      var checkBox = new Widget();
+      checkBox.setElement(html.input({"type":"checkbox","class":"toggle"}));
+      li.add(checkBox);
 
-    var task1Button = new Widget();
-    task1Button.setElement(html.button({"class":"destroy"}));
-    li.add(task1Button);
+      var task1Label = new Widget();
+      task1Label.setElement(html.label("hardcoded todo."));
+      li.add(task1Label);
 
-    ul.add(li);
+      var task1Button = new Widget();
+      task1Button.setElement(html.button({"class":"destroy"}));
+      li.add(task1Button);
+
+      ul.add(li);
+    }
 
     this.add(ul);
 
