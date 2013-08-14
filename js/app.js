@@ -29,6 +29,9 @@ var TodoList = Class.extend({
 
 var todos = new TodoList();
 
+
+// The main reason to extend FocusWidget is to use a special eventListener
+// for the Enter keys.
 var InputBox = FocusWidget.extend({
   init: function() {
       // This function exists because createInputElement contains
@@ -102,6 +105,38 @@ var mainView = FlowPanel.extend({
     this.render();
   },
   render: function() {
+    var toggleAll = new Widget();
+    toggleAll.setElement(html.input({"id":"toggle-all","type":"checkbox"}));
+    this.add(toggleAll);
+
+    var toggleAllLabel = new Widget();
+    toggleAllLabel.setElement(html.label({"for":"toggle-all"},"Mark all as complete"));
+    this.add(toggleAllLabel);
+
+    var ul = new FlowPanel();
+    ul.setElement(html.ul());
+    ul.setId("todo-list");
+
+    var li = new FlowPanel();
+    li.setElement(html.li());
+    li.setAttr("class","completed");
+
+    var checkBox = new Widget();
+    checkBox.setElement(html.input({"type":"checkbox","class":"toggle"}));
+    li.add(checkBox);
+
+    var task1Label = new Widget();
+    task1Label.setElement(html.label("hardcoded todo."));
+    li.add(task1Label);
+
+    var task1Button = new Widget();
+    task1Button.setElement(html.button({"class":"destroy"}));
+    li.add(task1Button);
+
+    ul.add(li);
+
+    this.add(ul);
+
   }
 });
 
