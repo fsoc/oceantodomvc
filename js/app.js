@@ -113,43 +113,46 @@ var mainView = FlowPanel.extend({
     this.render();
   },
   render: function() {
-    var toggleAll = new Widget();
-    toggleAll.setElement(html.input({"id":"toggle-all","type":"checkbox"}));
-    this.add(toggleAll);
+    //If there are no items, hide me
+    if(todos.size() === 0) {
+      this.setStyle("display","none");
+    } else {
+      var toggleAll = new Widget();
+      toggleAll.setElement(html.input({"id":"toggle-all","type":"checkbox"}));
+      this.add(toggleAll);
 
-    var toggleAllLabel = new Widget();
-    toggleAllLabel.setElement(html.label({"for":"toggle-all"},"Mark all as complete"));
-    this.add(toggleAllLabel);
+      var toggleAllLabel = new Widget();
+      toggleAllLabel.setElement(html.label({"for":"toggle-all"},"Mark all as complete"));
+      this.add(toggleAllLabel);
 
-    var ul = new FlowPanel();
-    ul.setElement(html.ul());
-    ul.setId("todo-list");
+      var ul = new FlowPanel();
+      ul.setElement(html.ul());
+      ul.setId("todo-list");
 
-    console.log("render mainView with "+todos.size()+" todos");
+      console.log("render mainView with "+todos.size()+" todos");
 
-    for(var i=0; i< todos.size(); i++) {
-      var todo = todos.get(i);
-      var li = new FlowPanel();
-      li.setElement(html.li());
-      li.setAttr("class","completed");
+      for(var i=0; i< todos.size(); i++) {
+        var todo = todos.get(i);
+        var li = new FlowPanel();
+        li.setElement(html.li());
+        li.setAttr("class","completed");
 
-      var checkBox = new Widget();
-      checkBox.setElement(html.input({"type":"checkbox","class":"toggle"}));
-      li.add(checkBox);
+        var checkBox = new Widget();
+        checkBox.setElement(html.input({"type":"checkbox","class":"toggle"}));
+        li.add(checkBox);
 
-      var task1Label = new Widget();
-      task1Label.setElement(html.label("hardcoded todo."));
-      li.add(task1Label);
+        var task1Label = new Widget();
+        task1Label.setElement(html.label("hardcoded todo."));
+        li.add(task1Label);
 
-      var task1Button = new Widget();
-      task1Button.setElement(html.button({"class":"destroy"}));
-      li.add(task1Button);
+        var task1Button = new Widget();
+        task1Button.setElement(html.button({"class":"destroy"}));
+        li.add(task1Button);
 
-      ul.add(li);
+        ul.add(li);
+      }
+      this.add(ul);
     }
-
-    this.add(ul);
-
   }
 });
 
@@ -160,6 +163,10 @@ var footerView = FlowPanel.extend({
     this.render();
   },
   render: function() {
+    //If there are no items, hide me
+    if(todos.size() === 0) {
+      this.setStyle("display","none");
+    }
   }
 });
 
