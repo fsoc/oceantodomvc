@@ -35,6 +35,7 @@ var InputBox = FocusWidget.extend({
       // deprecated jQuery code.
       this._super(html.input());
       this.sinkEvents(Event.ONKEYPRESS);
+      this.value = this.getElement().value;
   },
   addEnterListener: function(listener) {
     this.enterListener =listener;
@@ -48,9 +49,15 @@ var InputBox = FocusWidget.extend({
       }
     }
   },
+  getText:function() {
+    return DOM.getAttribute(this.getElement(),"value");
+  },
+  setText:function(text) {
+    return DOM.setAttribute(this.getElement(),"value",text);
+  },
   // Clear all input text data
   clear: function() {
-    this.getElement().value = "";
+    this.setText("");
   }
 });
 
@@ -74,7 +81,7 @@ var headerView = FlowPanel.extend({
     input.addEnterListener(function() { 
       var todo = new Todo(input.value); 
       todos.add(todo);
-      console.log("added "+input.value+" count "+todos.size());
+      console.log("added "+input.getText()+" count "+todos.size());
       input.clear();
     });
 
