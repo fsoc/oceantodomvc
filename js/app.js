@@ -67,6 +67,7 @@ var headerView = FlowPanel.extend({
 
     var input = new InputBox();
     input.setAttr("placeholder","What needs to be done?");
+    input.setAttr("autofocus","autofocus");
     input.setId("new-todo");
 
     input.addEnterListener(function() { 
