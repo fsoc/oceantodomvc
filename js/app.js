@@ -4,8 +4,8 @@ var Todo = Class.extend({
     this.value = value;
     this.completed = false;
   },
-  setCompleted: function(boolean) {
-    this.completed = boolean;
+  setCompleted: function(completed) {
+    this.completed = completed;
   },
   getValue: function() {
     return this.value;
@@ -24,6 +24,10 @@ var TodoList = Class.extend({
   },
   size: function() {
     return this.todos.length;
+  },
+  setAllCompleted: function(completed) {
+    for(var i=0; i<this.todos.length; i++) {
+      this.todos[i].setCompleted(completed);
   }
 });
 
