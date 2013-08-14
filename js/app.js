@@ -30,7 +30,9 @@ var todos = new TodoList();
 
 var InputBox = FocusWidget.extend({
   init: function() {
-      this._super(DOM.createInputElement());
+      // This function exists because createInputElement contains
+      // deprecated jQuery code.
+      this._super(DOM.createElement('input'));
       this.sinkEvents(Event.ONKEYPRESS);
   },
   addEnterListener: function(listener) {
@@ -78,16 +80,54 @@ var headerView = FlowPanel.extend({
   }
 });
 
+var mainView = FlowPanel.extend({
+  init: function() {
+    this._super();
+    this.setId("main");
+    this.render();
+  },
+  render: function() {
+  }
+});
+
+var footerView = FlowPanel.extend({
+  init: function() {
+    this._super();
+    this.setId("footer");
+    this.render();
+  },
+  render: function() {
+  }
+});
+
+var infoView = FlowPanel.extend({
+  init: function() {
+    this._super();
+    this.setId("info");
+    this.render();
+  },
+  render: function() {
+    var text = new Text("Double-click to edit a todo");
+    this.add(text);
+  }
+});
+
 ////////////////////////////////////////////////////
 
 $(document).ready(function() {
 	var root = new RootPanel("boostrap");
-	var wrapper = new FlowPanel();
-	wrapper.setId("todoapp");
+	var todoApp = new FlowPanel();
+	todoApp.setId("todoapp");
 
   var header = new headerView();
+  var main = new mainView();
+  var footer = new footerView();
+  var info = new infoView();
 
-  wrapper.add(header);
+  todoApp.add(header);
+  todoApp.add(main);
+  todoApp.add(footer);
 
-  root.add(wrapper);
+  root.add(todoApp);
+  root.add(info);
 });
