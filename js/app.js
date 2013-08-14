@@ -1,6 +1,4 @@
 var ENTER_KEY = 13;
-var todos = new TodoList();
-
 var Todo = Class.extend({
   init: function(value) {
     this.value = value;
@@ -29,11 +27,13 @@ var TodoList = Class.extend({
   }
 });
 
+var todos = new TodoList();
+
 var InputBox = FocusWidget.extend({
   init: function() {
       // This function exists because createInputElement contains
       // deprecated jQuery code.
-      this._super(DOM.createElement('input'));
+      this._super(html.input());
       this.sinkEvents(Event.ONKEYPRESS);
   },
   addEnterListener: function(listener) {
@@ -109,7 +109,8 @@ var infoView = FlowPanel.extend({
     this.render();
   },
   render: function() {
-    var text = new Text("Double-click to edit a todo");
+    var text = new Widget();
+    text.setElement(html.p("Double-click to edit a todo"));
     this.add(text);
   }
 });
