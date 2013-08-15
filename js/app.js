@@ -39,15 +39,11 @@ var TodoList = Class.extend({
     this.todos.splice(id,1);
     window.nc.postNotification("refresh", null);
   },
-  // TODO: add map function and make every Todo class be able to remove itself
-  // Clear all completed todos, notice that map only works for IE9+
+  // Clear all completed todos, notice that filter only works for IE9+
   clearCompleted: function() {
-    for(var i=0; i<this.todos.length; i++) {
-      if(this.todos[i].isCompleted()) {
-       this.todos.splice(i,1); 
-       i--;
-      }
-    }
+    this.todos = this.todos.filter(function(i) {
+      return !i.isCompleted();
+    });
     window.nc.postNotification("refresh", null);
   },
   size: function() {
