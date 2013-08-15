@@ -7,6 +7,13 @@ var Todo = Class.extend({
   isCompleted: function() {
     return this.completed;
   },
+  toggleCompleted: function() {
+    if(this.completed) {
+      this.completed = false;
+    } else {
+      this.completed = true;
+    }
+  },
   setCompleted: function(completed) {
     this.completed = completed;
   },
@@ -101,7 +108,7 @@ var headerView = FlowPanel.extend({
 
         todos.add(todo);
         console.log("added "+text+" count "+todos.size());
-        window.nc.postNotification("add-todo", null);
+        window.nc.postNotification("refresh", null);
         input.clear();
       }
     });
@@ -117,7 +124,7 @@ var mainView = FlowPanel.extend({
     this.setId("main");
     this.render();
 
-    window.nc.addListener("add-todo", function(todo) {
+    window.nc.addListener("refresh", function() {
       that.render();
     });
   },
@@ -149,8 +156,16 @@ var mainView = FlowPanel.extend({
         var li = new FlowPanel();
         li.setElement(html.li());
 
-        var checkBox = new Widget();
-        checkBox.setElement(html.input({"type":"checkbox","class":"toggle"}));
+        var checkBox = new FocusWidget(html.input({"type":"checkbox","class":"toggle"}));
+        checkBox.addMouseDownListener(function(currentTodo) {
+          return function() {
+            currentTodo.toggleCompleted();
+            console.log("toggling currentTodo with text:" + currentTodo.getValue());
+            window.nc.postNotification("refresh", null);
+          };
+        }(todo));
+
+        // add styles and attributes for checked tasks
         if(todo.isCompleted()) {
           li.setStyleName("completed");
           // This is an ugly version in use because there is no framework support for this
