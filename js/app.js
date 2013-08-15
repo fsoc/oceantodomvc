@@ -150,8 +150,8 @@ var mainView = FlowPanel.extend({
       this.setVisible(false);
     } else {
       this.clear();
+      this.setVisible(true);
       // This is an ugly version in use because there is no framework support for this
-      this.getElement().removeAttribute("style");
 
       var toggleAll = new FocusWidget(html.input({"id":"toggle-all","type":"checkbox"}));
      
@@ -226,17 +226,33 @@ var mainView = FlowPanel.extend({
 
 var footerView = FlowPanel.extend({
   init: function() {
+    var that = this;
     this._super();
     this.setId("footer");
     this.render();
+
+    window.nc.addListener("refresh", function() {
+      that.render();
+    });
   },
   render: function() {
     //If there are no items, hide me
     if(todos.size() === 0) {
       this.setVisible(false);
     } else {
-      todoCounter = new Widget(html.span({"id":"todo-count"}));
-       
+      this.clear();
+      this.setVisible(true);
+      todoCounter = new Widget();
+      todoCounter.setElement(html.span({"id":"todo-count"}));
+
+      var items = todos.amountCompleted();
+      var text = "<strong>" + items + "</strong> item";
+      if(items > 1)
+        text += "s";
+      text += " left";
+      DOM.setInnerHTML(todoCounter.getElement(), text);
+      
+      this.add(todoCounter);  
     }
   }
 });
