@@ -147,7 +147,7 @@ var mainView = FlowPanel.extend({
   render: function() {
     //If there are no items, hide me
     if(todos.size() === 0) {
-      this.setStyle("display","none");
+      this.setVisible(false);
     } else {
       this.clear();
       // This is an ugly version in use because there is no framework support for this
@@ -233,10 +233,10 @@ var footerView = FlowPanel.extend({
   render: function() {
     //If there are no items, hide me
     if(todos.size() === 0) {
-      this.setStyle("display","none");
+      this.setVisible(false);
     } else {
       todoCounter = new Widget(html.span({"id":"todo-count"}));
-
+       
     }
   }
 });
