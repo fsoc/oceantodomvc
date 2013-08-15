@@ -33,7 +33,8 @@ var TodoList = Class.extend({
     return this.todos[id];
   },
   remove: function(id) {
-    delete this.todos[id];
+    console.log("removing todo number " + id);
+    this.todos.splice(id,1);
   },
   size: function() {
     return this.todos.length;
@@ -158,6 +159,8 @@ var mainView = FlowPanel.extend({
 
         var checkBox = new FocusWidget(html.input({"type":"checkbox","class":"toggle"}));
         checkBox.addMouseDownListener(function(currentTodo) {
+          // The return statement is put here in order to create a new referncing
+          // enviroment for in this closure
           return function() {
             currentTodo.toggleCompleted();
             console.log("toggling currentTodo with text:" + currentTodo.getValue());
@@ -177,9 +180,16 @@ var mainView = FlowPanel.extend({
         task1Label.setElement(html.label(todo.getValue()));
         li.add(task1Label);
 
-        var task1Button = new Widget();
-        task1Button.setElement(html.button({"class":"destroy"}));
-        li.add(task1Button);
+        var destroyButton = new FocusWidget(html.button({"class":"destroy"}));
+        destroyButton.addMouseDownListener(function(index) {
+          // The return statement is put here in order to create a new referncing
+          // enviroment for in this closure
+          return function() {
+            todos.remove(index);
+            window.nc.postNotification("refresh", null);
+          };
+        }(i));
+        li.add(destroyButton);
 
         ul.add(li);
       }
