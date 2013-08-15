@@ -13,6 +13,7 @@ var Todo = Class.extend({
     } else {
       this.completed = true;
     }
+    window.nc.postNotification("refresh", null);
   },
   setCompleted: function(completed) {
     this.completed = completed;
@@ -28,6 +29,7 @@ var TodoList = Class.extend({
   },
   add: function(todo) {
     this.todos.push(todo);
+    window.nc.postNotification("refresh", null);
   },
   get: function(id) {
     return this.todos[id];
@@ -35,6 +37,18 @@ var TodoList = Class.extend({
   remove: function(id) {
     console.log("removing todo number " + id);
     this.todos.splice(id,1);
+    window.nc.postNotification("refresh", null);
+  },
+  // TODO: add map function and make every Todo class be able to remove itself
+  // Clear all completed todos, notice that map only works for IE9+
+  clearCompleted: function() {
+    for(var i=0; i<this.todos.length; i++) {
+      if(this.todos[i].isCompleted()) {
+       this.todos.splice(i,1); 
+       i--;
+      }
+    }
+    window.nc.postNotification("refresh", null);
   },
   size: function() {
     return this.todos.length;
@@ -51,6 +65,7 @@ var TodoList = Class.extend({
     for(var i=0; i<this.todos.length; i++) {
       this.todos[i].setCompleted(completed);
     }
+    window.nc.postNotification("refresh", null);
   },
   allTasksCompleted: function() {
     if(this.amountCompleted() === this.size())
@@ -124,7 +139,6 @@ var headerView = FlowPanel.extend({
 
         todos.add(todo);
         console.log("added "+text+" count "+todos.size());
-        window.nc.postNotification("refresh", null);
         input.clear();
       }
     });
@@ -161,7 +175,6 @@ var mainView = FlowPanel.extend({
       }
       toggleAll.addMouseDownListener(function() {
         todos.setAllCompleted(!todos.allTasksCompleted());
-        window.nc.postNotification("refresh", null);
       });
 
       this.add(toggleAll);
@@ -189,7 +202,6 @@ var mainView = FlowPanel.extend({
             currentTodo.toggleCompleted();
             console.log("toggling currentTodo with text:" + currentTodo.getValue());
             // We need to know if all the todo buttons are completed 
-            window.nc.postNotification("refresh", null);
           };
         }(todo));
 
@@ -212,7 +224,6 @@ var mainView = FlowPanel.extend({
           // enviroment for in this closure
           return function() {
             todos.remove(index);
-            window.nc.postNotification("refresh", null);
           };
         }(i));
         li.add(destroyButton);
@@ -245,14 +256,24 @@ var footerView = FlowPanel.extend({
       todoCounter = new Widget();
       todoCounter.setElement(html.span({"id":"todo-count"}));
 
-      var items = todos.amountCompleted();
-      var text = "<strong>" + items + "</strong> item";
-      if(items > 1)
+      var completedItems = todos.amountCompleted();
+      var text = "<strong>" + completedItems + "</strong> item";
+      if(completedItems > 1)
         text += "s";
       text += " left";
       DOM.setInnerHTML(todoCounter.getElement(), text);
       
       this.add(todoCounter);  
+      
+      if(completedItems > 0) {
+        var clearCompleted = new Button("Clear completed(" + completedItems + ")",
+            function() {
+              todos.clearCompleted();
+            });
+        clearCompleted.setId("clear-completed");
+
+        this.add(clearCompleted);
+      }
     }
   }
 });
