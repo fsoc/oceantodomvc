@@ -39,19 +39,25 @@ var TodoList = Class.extend({
   size: function() {
     return this.todos.length;
   },
+  amountCompleted: function() {
+    var completed = 0;
+    for(var i=0; i<this.todos.length; i++) {
+      if(this.todos[i].isCompleted())
+        completed++;
+    }
+    return completed;
+  },
   setAllCompleted: function(completed) {
     for(var i=0; i<this.todos.length; i++) {
       this.todos[i].setCompleted(completed);
     }
   },
   allTasksCompleted: function() {
-    allCompleted = true;
-    for(var i=0; i<this.todos.length; i++) {
-      if(!this.todos[i].isCompleted())
-        allCompleted = false;
-    }
-    return allCompleted;
-  }
+    if(this.amountCompleted() === this.size())
+      return true;
+    else 
+      return false;
+   }
 });
 
 var todos = new TodoList();
@@ -84,7 +90,7 @@ var InputBox = FocusWidget.extend({
     return DOM.getAttribute(this.getElement(),"value");
   },
   setText:function(text) {
-    return DOM.setAttribute(this.getElement(),"value",text);
+    this.setAttr("value",text);
   },
   // Clear all input text data
   clear: function() {
@@ -150,6 +156,7 @@ var mainView = FlowPanel.extend({
       var toggleAll = new FocusWidget(html.input({"id":"toggle-all","type":"checkbox"}));
      
       if(todos.allTasksCompleted()) {
+        // We need to use this since the UIObjects setAttr doesnt work. TODO 
         toggleAll.getElement().setAttribute("checked","");
       }
       toggleAll.addMouseDownListener(function() {
@@ -189,8 +196,9 @@ var mainView = FlowPanel.extend({
         // add styles and attributes for checked tasks
         if(todo.isCompleted()) {
           li.setStyleName("completed");
-          // This is an ugly version in use because there is no framework support for this
-          checkBox.getElement().setAttribute("checked","");
+          // TODO: investigate why the setAttr cannot be called with the second 
+          // argument as the empty string
+          checkBox.setAttr("checked","true");
         }
         li.add(checkBox);
 
@@ -226,6 +234,9 @@ var footerView = FlowPanel.extend({
     //If there are no items, hide me
     if(todos.size() === 0) {
       this.setStyle("display","none");
+    } else {
+      todoCounter = new Widget(html.span({"id":"todo-count"}));
+
     }
   }
 });
