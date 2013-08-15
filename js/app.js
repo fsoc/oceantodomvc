@@ -43,10 +43,20 @@ var TodoList = Class.extend({
     for(var i=0; i<this.todos.length; i++) {
       this.todos[i].setCompleted(completed);
     }
+  },
+  allTasksCompleted: function() {
+    allCompleted = true;
+    for(var i=0; i<this.todos.length; i++) {
+      if(!this.todos[i].isCompleted())
+        allCompleted = false;
+    }
+    return allCompleted;
   }
 });
 
 var todos = new TodoList();
+// The toggle-all button is not marked as completed
+var toggleAllCompleted = false;
 
 
 // The main reason to extend FocusWidget is to use a special eventListener
@@ -138,8 +148,22 @@ var mainView = FlowPanel.extend({
       // This is an ugly version in use because there is no framework support for this
       this.getElement().removeAttribute("style");
 
-      var toggleAll = new Widget();
-      toggleAll.setElement(html.input({"id":"toggle-all","type":"checkbox"}));
+      var toggleAll = new FocusWidget(html.input({"id":"toggle-all","type":"checkbox"}));
+     
+      if(toggleAllCompleted) {
+        toggleAll.getElement().setAttribute("checked","");
+      }
+      toggleAll.addMouseDownListener(function() {
+        if(!toggleAllCompleted) {
+          todos.setAllCompleted(true);
+          toggleAllCompleted = true;
+        } else {
+          todos.setAllCompleted(false);
+          toggleAllCompleted = false;
+        }
+        window.nc.postNotification("refresh", null);
+      });
+
       this.add(toggleAll);
 
       var toggleAllLabel = new Widget();
@@ -164,6 +188,9 @@ var mainView = FlowPanel.extend({
           return function() {
             currentTodo.toggleCompleted();
             console.log("toggling currentTodo with text:" + currentTodo.getValue());
+            // We need to know if all the todo buttons are completed 
+            // TODO: should this be here?
+            toggleAllCompleted = todos.allTasksCompleted(); 
             window.nc.postNotification("refresh", null);
           };
         }(todo));
