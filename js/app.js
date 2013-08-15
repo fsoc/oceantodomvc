@@ -41,21 +41,24 @@ var TodoList = Class.extend({
   },
   // Clear all completed todos, notice that filter only works for IE9+
   clearCompleted: function() {
-    this.todos = this.todos.filter(function(i) {
-      return !i.isCompleted();
+    this.todos = this.todos.filter(function(todo) {
+      return !todo.isCompleted();
     });
     window.nc.postNotification("refresh", null);
   },
   size: function() {
     return this.todos.length;
   },
+  // Use reduce count the completed todos, this only works in IE9+
   amountCompleted: function() {
-    var completed = 0;
-    for(var i=0; i<this.todos.length; i++) {
-      if(this.todos[i].isCompleted())
-        completed++;
-    }
-    return completed;
+    // The function will be called the number of times as the array is 
+    // big and the prev will be appended by one if the todo is completed
+    return this.todos.reduce(function(prev, curr) {
+      if(curr.isCompleted())
+        return prev+1;
+      else
+        return prev;
+    },0);
   },
   setAllCompleted: function(completed) {
     for(var i=0; i<this.todos.length; i++) {
