@@ -35,7 +35,6 @@ var TodoList = Class.extend({
     return this.todos[id];
   },
   remove: function(id) {
-    console.log("removing todo number " + id);
     this.todos.splice(id,1);
     window.nc.postNotification("refresh", null);
   },
@@ -137,7 +136,6 @@ var headerView = FlowPanel.extend({
         var todo = new Todo(text); 
 
         todos.add(todo);
-        console.log("added "+text+" count "+todos.size());
         input.clear();
       }
     });
@@ -186,8 +184,6 @@ var mainView = FlowPanel.extend({
       ul.setElement(html.ul());
       ul.setId("todo-list");
 
-      console.log("render mainView with "+todos.size()+" todos");
-
       for(var i=0; i< todos.size(); i++) {
         var todo = todos.get(i);
         var li = new FlowPanel();
@@ -199,8 +195,6 @@ var mainView = FlowPanel.extend({
           // enviroment for in this closure
           return function() {
             currentTodo.toggleCompleted();
-            console.log("toggling currentTodo with text:" + currentTodo.getValue());
-            // We need to know if all the todo buttons are completed 
           };
         }(todo));
 
