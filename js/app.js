@@ -20,6 +20,9 @@ var Todo = Class.extend({
   },
   getValue: function() {
     return this.value;
+  },
+  setValue: function(data) {
+    this.value = data;
   }
 });
 
@@ -189,6 +192,9 @@ var mainView = FlowPanel.extend({
         var li = new FlowPanel();
         li.setElement(html.li());
 
+        var view = new FlowPanel();
+        view.setStyleName("view");
+
         var checkBox = new FocusWidget(html.input({"type":"checkbox","class":"toggle"}));
         checkBox.addMouseDownListener(function(currentTodo) {
           // The return statement is put here in order to create a new referncing
@@ -205,11 +211,16 @@ var mainView = FlowPanel.extend({
           // argument as the empty string
           checkBox.setAttr("checked","true");
         }
-        li.add(checkBox);
 
-        var task1Label = new Widget();
-        task1Label.setElement(html.label(todo.getValue()));
-        li.add(task1Label);
+        var todoLabel = new FocusWidget(html.label(todo.getValue()));
+        todoLabel.addMouseDownListener(function(li) {
+          // The return statement is put here in order to create a new referncing
+          // enviroment for in this closure
+          return function() {
+            // This div shows the edit box
+            li.setStyleName("editing");
+          };
+        }(li));
 
         var destroyButton = new FocusWidget(html.button({"class":"destroy"}));
         destroyButton.addMouseDownListener(function(index) {
@@ -219,8 +230,29 @@ var mainView = FlowPanel.extend({
             todos.remove(index);
           };
         }(i));
-        li.add(destroyButton);
 
+        var edit = new InputBox();
+        edit.setStyleName("edit");
+        edit.setText(todo.getValue());
+        edit.addEnterListener(function(i, li, edit) {
+
+          return function() {
+            var text = edit.getText();
+            // Only add non-empty tasks, note that trim() is not supported
+            // by IE <= 8 but since this is an TodoMVC app, that is okay
+            if(text.trim() !== "") {
+              li.removeStyleName("editing");
+              todos.get(i).setValue(text);
+              window.nc.postNotification("refresh", null);
+            }
+          }
+        }(i, li, edit));
+
+        view.add(checkBox);
+        view.add(todoLabel);
+        view.add(destroyButton);
+        li.add(view);
+        li.add(edit); 
         ul.add(li);
       }
       this.add(ul);
