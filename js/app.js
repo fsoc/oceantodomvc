@@ -84,11 +84,11 @@ var todos = new TodoList();
 // for the Enter keys.
 var InputBox = FocusWidget.extend({
   init: function() {
-      // This function exists because createInputElement contains
-      // deprecated jQuery code.
-      this._super(html.input());
-      this.sinkEvents(Event.ONKEYPRESS);
-      this.value = this.getElement().value;
+    // This function exists because createInputElement contains
+    // deprecated jQuery code.
+    this._super(html.input());
+    this.sinkEvents(Event.ONKEYPRESS);
+    this.value = this.getElement().value;
   },
   addEnterListener: function(listener) {
     this.enterListener =listener;
@@ -112,6 +112,24 @@ var InputBox = FocusWidget.extend({
   clear: function() {
     this.setText("");
   }
+});
+
+var DoubleClickLabel = FocusWidget.extend({
+  init: function(value) {
+    this._super(html.label(value));
+    this.sinkEvents(Event.ONDBLCLICK);
+  }, 
+  addDoubleClickListener: function(listener) {
+    this.doubleClickListener =listener;
+    return this;
+  },
+  onBrowserEvent: function(event) {
+    if (this.doubleClickListener) {
+      this.doubleClickListener(this, event);
+
+    }
+  },
+
 });
 
 ////////////////////////////////////////////////////
@@ -212,8 +230,8 @@ var mainView = FlowPanel.extend({
           checkBox.setAttr("checked","true");
         }
 
-        var todoLabel = new FocusWidget(html.label(todo.getValue()));
-        todoLabel.addMouseDownListener(function(li) {
+        var todoLabel = new DoubleClickLabel(todo.getValue());
+        todoLabel.addDoubleClickListener(function(li) {
           // The return statement is put here in order to create a new referncing
           // enviroment for in this closure
           return function() {
