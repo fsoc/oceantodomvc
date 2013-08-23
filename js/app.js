@@ -91,7 +91,7 @@ var InputBox = FocusWidget.extend({
     this.value = this.getElement().value;
   },
   addEnterListener: function(listener) {
-    this.enterListener =listener;
+    this.enterListener = listener;
     return this;
   },
   onBrowserEvent: function(event) {
