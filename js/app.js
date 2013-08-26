@@ -238,25 +238,6 @@ var mainView = FlowPanel.extend({
           checkBox.setAttr("checked","true");
         }
 
-        var todoLabel = new DoubleClickLabel(todo.getValue());
-        todoLabel.addDoubleClickListener(function(li) {
-          // The return statement is put here in order to create a new referncing
-          // enviroment for in this closure
-          return function() {
-            // This div shows the edit box
-            li.setStyleName("editing");
-          };
-        }(li));
-
-        var destroyButton = new FocusWidget(html.button({"class":"destroy"}));
-        destroyButton.addMouseDownListener(function(index) {
-          // The return statement is put here in order to create a new referncing
-          // enviroment for in this closure
-          return function() {
-            todos.remove(index);
-          };
-        }(i));
-
         var edit = new InputBox();
         edit.setStyleName("edit");
         edit.setText(todo.getValue());
@@ -283,6 +264,26 @@ var mainView = FlowPanel.extend({
             edit.getElement().blur();
           }
         }(edit));
+
+        var todoLabel = new DoubleClickLabel(todo.getValue());
+        todoLabel.addDoubleClickListener(function(li, edit) {
+          // The return statement is put here in order to create a new referncing
+          // enviroment for in this closure
+          return function() {
+            // This div shows the edit box
+            li.setStyleName("editing");
+            edit.getElement().focus();
+          };
+        }(li, edit));
+
+        var destroyButton = new FocusWidget(html.button({"class":"destroy"}));
+        destroyButton.addMouseDownListener(function(index) {
+          // The return statement is put here in order to create a new referncing
+          // enviroment for in this closure
+          return function() {
+            todos.remove(index);
+          };
+        }(i));
 
         view.add(checkBox);
         view.add(todoLabel);
