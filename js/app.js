@@ -271,6 +271,8 @@ var mainView = FlowPanel.extend({
               li.removeStyleName("editing");
               todos.get(i).setValue(trimmedText);
               window.nc.postNotification("refresh", null);
+            } else {
+              todos.remove(i);
             }
           };
         }(i, li, edit));
