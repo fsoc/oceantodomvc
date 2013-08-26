@@ -87,19 +87,27 @@ var InputBox = FocusWidget.extend({
     // This function exists because createInputElement contains
     // deprecated jQuery code.
     this._super(html.input());
-    this.sinkEvents(Event.ONKEYPRESS);
+    this.sinkEvents(Event.ONKEYPRESS|Event.FOCUSEVENTS);
     this.value = this.getElement().value;
   },
   addEnterListener: function(listener) {
     this.enterListener = listener;
     return this;
   },
+  addOnBlurListener: function(listener) {
+    this.onBlurListener = listener;
+    return this;
+  },
   onBrowserEvent: function(event) {
-    if (this.enterListener) {
-      // Only listen on keypresses with ENTER
-      if(event.which === ENTER_KEY) {
+    // Only listen on keypresses with ENTER
+    if (event.type === "keypress" && event.which === ENTER_KEY) {
+      if (this.enterListener) {
+        this.onBlurListener = null; //TODO: this is needed but ugly since blur will be called again after Enter is pressed (if the listener for blur exists)
         this.enterListener(this, event);
       }
+    } else if (event.type === "blur") {
+      if (this.onBlurListener)
+        this.onBlurListener(this, event);
     }
   },
   getText:function() {
@@ -253,8 +261,8 @@ var mainView = FlowPanel.extend({
         var edit = new InputBox();
         edit.setStyleName("edit");
         edit.setText(todo.getValue());
-        edit.addEnterListener(function(i, li, edit) {
 
+        var save = function(i, edit) {
           return function() {
             var text = edit.getText();
             // Only add non-empty tasks, note that trim() is not supported
@@ -266,7 +274,10 @@ var mainView = FlowPanel.extend({
               window.nc.postNotification("refresh", null);
             }
           }
-        }(i, li, edit));
+        };
+
+        edit.addOnBlurListener(save(i, edit));
+        edit.addEnterListener(save(i, edit));
 
         view.add(checkBox);
         view.add(todoLabel);
