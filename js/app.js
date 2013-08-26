@@ -170,6 +170,7 @@ var headerView = FlowPanel.extend({
     });
 
     this.add(input);
+    input.getElement().focus();
   }
 });
 
