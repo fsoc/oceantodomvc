@@ -261,7 +261,7 @@ var mainView = FlowPanel.extend({
         edit.setStyleName("edit");
         edit.setText(todo.getValue());
 
-        edit.addOnBlurListener(function(i, edit) {
+        edit.addOnBlurListener(function(i, li, edit) {
           return function() {
             var text = edit.getText();
             // Only add non-empty tasks, note that trim() is not supported
@@ -273,12 +273,14 @@ var mainView = FlowPanel.extend({
               window.nc.postNotification("refresh", null);
             }
           };
-        }(i, edit));
+        }(i, li, edit));
 
         // Trigger the blur event with enter.
-        edit.addEnterListener(function() {
-          edit.getElement().blur();
-        });
+        edit.addEnterListener(function(edit) {
+          return function() {
+            edit.getElement().blur();
+          }
+        }(edit));
 
         view.add(checkBox);
         view.add(todoLabel);
