@@ -52,15 +52,17 @@ var TodoList = Class.extend({
     return this.todos.length;
   },
   // Use reduce count the completed todos, this only works in IE9+
-  amountNotCompleted: function() {
-    // The function will be called the number of times as the array is 
+  amountCompleted: function() { // The function will be called the number of times as the array is 
     // big and the prev will be appended by one if the todo is completed
     return this.todos.reduce(function(prev, curr) {
-      if(!curr.isCompleted())
+      if(curr.isCompleted())
         return prev+1;
       else
         return prev;
     },0);
+  },
+  amountNotCompleted: function() {
+    return this.todos.length - this.amountCompleted();
   },
   setAllCompleted: function(completed) {
     for(var i=0; i<this.todos.length; i++) {
@@ -69,7 +71,7 @@ var TodoList = Class.extend({
     window.nc.postNotification("refresh", null);
   },
   allTasksCompleted: function() {
-    if(this.amountNotCompleted() === 0)
+    if(this.amountCompleted() === 0)
       return true;
     else 
       return false;
@@ -194,8 +196,7 @@ var mainView = FlowPanel.extend({
       this.setVisible(true);
       // This is an ugly version in use because there is no framework support for this
 
-      var toggleAll = new FocusWidget(html.input({"id":"toggle-all","type":"checkbox"}));
-     
+      var toggleAll = new FocusWidget(html.input({"id":"toggle-all","type":"checkbox"})); 
       if(todos.allTasksCompleted()) {
         // We need to use this since the UIObjects setAttr doesnt work. TODO 
         toggleAll.getElement().setAttribute("checked","");
@@ -319,9 +320,10 @@ var footerView = FlowPanel.extend({
       todoCounter = new Widget();
       todoCounter.setElement(html.span({"id":"todo-count"}));
 
-      var completedItems = todos.amountNotCompleted();
-      var text = "<strong>" + completedItems + "</strong> item";
-      if(completedItems > 1)
+      var notCompletedItems = todos.amountNotCompleted();
+      var completedItems = todos.amountCompleted();
+      var text = "<strong>" + notCompletedItems + "</strong> item";
+      if(notCompletedItems > 1)
         text += "s";
       text += " left";
       DOM.setInnerHTML(todoCounter.getElement(), text);
