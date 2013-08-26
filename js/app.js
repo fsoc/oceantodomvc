@@ -102,7 +102,6 @@ var InputBox = FocusWidget.extend({
     // Only listen on keypresses with ENTER
     if (event.type === "keypress" && event.which === ENTER_KEY) {
       if (this.enterListener) {
-        this.onBlurListener = null; //TODO: this is needed but ugly since blur will be called again after Enter is pressed (if the listener for blur exists)
         this.enterListener(this, event);
       }
     } else if (event.type === "blur") {
@@ -262,7 +261,7 @@ var mainView = FlowPanel.extend({
         edit.setStyleName("edit");
         edit.setText(todo.getValue());
 
-        var save = function(i, edit) {
+        edit.addOnBlurListener(function(i, edit) {
           return function() {
             var text = edit.getText();
             // Only add non-empty tasks, note that trim() is not supported
@@ -273,11 +272,13 @@ var mainView = FlowPanel.extend({
               todos.get(i).setValue(trimmedText);
               window.nc.postNotification("refresh", null);
             }
-          }
-        };
+          };
+        }(i, edit));
 
-        edit.addOnBlurListener(save(i, edit));
-        edit.addEnterListener(save(i, edit));
+        // Trigger the blur event with enter.
+        edit.addEnterListener(function() {
+          edit.getElement().blur();
+        });
 
         view.add(checkBox);
         view.add(todoLabel);
