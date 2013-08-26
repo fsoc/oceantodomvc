@@ -52,11 +52,11 @@ var TodoList = Class.extend({
     return this.todos.length;
   },
   // Use reduce count the completed todos, this only works in IE9+
-  amountCompleted: function() {
+  amountNotCompleted: function() {
     // The function will be called the number of times as the array is 
     // big and the prev will be appended by one if the todo is completed
     return this.todos.reduce(function(prev, curr) {
-      if(curr.isCompleted())
+      if(!curr.isCompleted())
         return prev+1;
       else
         return prev;
@@ -69,7 +69,7 @@ var TodoList = Class.extend({
     window.nc.postNotification("refresh", null);
   },
   allTasksCompleted: function() {
-    if(this.amountCompleted() === this.size())
+    if(this.amountNotCompleted() === 0)
       return true;
     else 
       return false;
@@ -153,8 +153,9 @@ var headerView = FlowPanel.extend({
       var text = input.getText();
       // Only add non-empty tasks, note that trim() is not supported
       // by IE <= 8 but since this is an TodoMVC app, that is okay
-      if(text.trim() !== "") {
-        var todo = new Todo(text); 
+      var trimmedText = text.trim();
+      if(trimmedText !== "") {
+        var todo = new Todo(trimmedText); 
 
         todos.add(todo);
         input.clear();
@@ -258,9 +259,10 @@ var mainView = FlowPanel.extend({
             var text = edit.getText();
             // Only add non-empty tasks, note that trim() is not supported
             // by IE <= 8 but since this is an TodoMVC app, that is okay
-            if(text.trim() !== "") {
+            var trimmedText = text.trim();
+            if(trimmedText !== "") {
               li.removeStyleName("editing");
-              todos.get(i).setValue(text);
+              todos.get(i).setValue(trimmedText);
               window.nc.postNotification("refresh", null);
             }
           }
@@ -299,7 +301,7 @@ var footerView = FlowPanel.extend({
       todoCounter = new Widget();
       todoCounter.setElement(html.span({"id":"todo-count"}));
 
-      var completedItems = todos.amountCompleted();
+      var completedItems = todos.amountNotCompleted();
       var text = "<strong>" + completedItems + "</strong> item";
       if(completedItems > 1)
         text += "s";
