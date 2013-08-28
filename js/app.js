@@ -1,8 +1,26 @@
 var ENTER_KEY = 13;
+var DB_NAME = "todos-ocean";
+
+var Storage = Class.extend({
+  init: function() {
+    window.nc.addListener("refresh", function(filter) {
+      storage.store(todos.getData());
+    });
+  },
+  store: function(data) {
+    localStorage[DB_NAME] = JSON.stringify(data);
+  },
+  retrieve: function() {
+    var store = localStorage[DB_NAME];
+    return (store && JSON.parse(store)) || [];
+  }
+});
+
+var storage = new Storage();
 
 var TodoList = Class.extend({
   init: function() {
-    this.todos = [];
+    this.todos = storage.retrieve();
   },
   add: function(todo) {
     this.todos.push({
@@ -65,6 +83,9 @@ var TodoList = Class.extend({
       return true;
     else 
       return false;
+  },
+  getData: function() {
+    return this.todos;
   }
 });
 
