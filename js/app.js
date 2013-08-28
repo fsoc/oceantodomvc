@@ -13,7 +13,6 @@ var Todo = Class.extend({
     } else {
       this.completed = true;
     }
-    window.nc.postNotification("refresh", null);
   },
   setCompleted: function(completed) {
     this.completed = completed;
@@ -32,21 +31,18 @@ var TodoList = Class.extend({
   },
   add: function(todo) {
     this.todos.push(todo);
-    window.nc.postNotification("refresh", null);
   },
   get: function(id) {
     return this.todos[id];
   },
   remove: function(id) {
     this.todos.splice(id,1);
-    window.nc.postNotification("refresh", null);
   },
   // Clear all completed todos, notice that filter only works for IE9+
   clearCompleted: function() {
     this.todos = this.todos.filter(function(todo) {
       return !todo.isCompleted();
     });
-    window.nc.postNotification("refresh", null);
   },
   size: function() {
     return this.todos.length;
@@ -68,7 +64,6 @@ var TodoList = Class.extend({
     for(var i=0; i<this.todos.length; i++) {
       this.todos[i].setCompleted(completed);
     }
-    window.nc.postNotification("refresh", null);
   },
   allTasksCompleted: function() {
     if(this.amountCompleted() === 0)
@@ -145,11 +140,17 @@ var DoubleClickLabel = FocusWidget.extend({
 
 var headerView = FlowPanel.extend({
   init: function() {
+    var that = this;
     this._super();
     this.setId("header");
-    this.render();
-  },
-  render: function() {
+
+    window.nc.addListener("refresh", function(filter) {
+      that.render(filter);
+    });
+ },
+  render: function(filter) {
+    var filter = filter || '';
+    this.clear();
     var h1 = new Header1(["todos"]);
     this.add(h1);
 
@@ -167,6 +168,7 @@ var headerView = FlowPanel.extend({
         var todo = new Todo(trimmedText); 
 
         todos.add(todo);
+        window.nc.postNotification("refresh", filter);
         input.clear();
       }
     });
@@ -181,17 +183,17 @@ var mainView = FlowPanel.extend({
     var that = this;
     this._super();
     this.setId("main");
-    this.render();
 
-    window.nc.addListener("refresh", function() {
-      that.render();
+    window.nc.addListener("refresh", function(filter) {
+      that.render(filter);
     });
   },
-  render: function() {
+  render: function(filter) {
     //If there are no items, hide me
     if(todos.size() === 0) {
       this.setVisible(false);
     } else {
+      var filter = filter || '';
       this.clear();
       this.setVisible(true);
       // This is an ugly version in use because there is no framework support for this
@@ -203,6 +205,7 @@ var mainView = FlowPanel.extend({
       }
       toggleAll.addMouseDownListener(function() {
         todos.setAllCompleted(!todos.allTasksCompleted());
+        window.nc.postNotification("refresh", filter);
       });
 
       this.add(toggleAll);
@@ -217,86 +220,92 @@ var mainView = FlowPanel.extend({
 
       for(var i=0; i< todos.size(); i++) {
         var todo = todos.get(i);
-        var li = new FlowPanel();
-        li.setElement(html.li());
 
-        var view = new FlowPanel();
-        view.setStyleName("view");
+        if ( (filter === "") || (filter === "active" && !todo.isCompleted()) || (filter === "completed" && todo.isCompleted()) ) {
+          var li = new FlowPanel();
+          li.setElement(html.li());
 
-        var checkBox = new FocusWidget(html.input({"type":"checkbox","class":"toggle"}));
-        checkBox.addMouseDownListener(function(currentTodo) {
-          // The return statement is put here in order to create a new referncing
-          // enviroment for in this closure
-          return function() {
-            currentTodo.toggleCompleted();
-          };
-        }(todo));
+          var view = new FlowPanel();
+          view.setStyleName("view");
 
-        // add styles and attributes for checked tasks
-        if(todo.isCompleted()) {
-          li.setStyleName("completed");
-          // TODO: investigate why the setAttr cannot be called with the second 
-          // argument as the empty string
-          checkBox.setAttr("checked","true");
-        }
+          var checkBox = new FocusWidget(html.input({"type":"checkbox","class":"toggle"}));
+          checkBox.addMouseDownListener(function(currentTodo) {
+            // The return statement is put here in order to create a new referncing
+            // enviroment for in this closure
+            return function() {
+              currentTodo.toggleCompleted();
+              window.nc.postNotification("refresh", filter);
+            };
+          }(todo));
 
-        var edit = new InputBox();
-        edit.setStyleName("edit");
-        edit.setText(todo.getValue());
-
-        edit.addOnBlurListener(function(i, li, edit) {
-          return function() {
-            var text = edit.getText();
-            // Only add non-empty tasks, note that trim() is not supported
-            // by IE <= 8 but since this is an TodoMVC app, that is okay
-            var trimmedText = text.trim();
-            if(trimmedText !== "") {
-              li.removeStyleName("editing");
-              todos.get(i).setValue(trimmedText);
-              window.nc.postNotification("refresh", null);
-            } else {
-              todos.remove(i);
-            }
-          };
-        }(i, li, edit));
-
-        // Trigger the blur event with enter.
-        edit.addEnterListener(function(edit) {
-          return function() {
-            edit.getElement().blur();
+          // add styles and attributes for checked tasks
+          if(todo.isCompleted()) {
+            li.setStyleName("completed");
+            // TODO: investigate why the setAttr cannot be called with the second 
+            // argument as the empty string
+            checkBox.setAttr("checked","true");
           }
-        }(edit));
 
-        var todoLabel = new DoubleClickLabel(todo.getValue());
-        todoLabel.addDoubleClickListener(function(li, edit) {
-          // The return statement is put here in order to create a new referncing
-          // enviroment for in this closure
-          return function() {
-            // This div shows the edit box
-            li.setStyleName("editing");
-            edit.getElement().focus();
-          };
-        }(li, edit));
+          var edit = new InputBox();
+          edit.setStyleName("edit");
+          edit.setText(todo.getValue());
 
-        var destroyButton = new FocusWidget(html.button({"class":"destroy"}));
-        destroyButton.addMouseDownListener(function(index) {
-          // The return statement is put here in order to create a new referncing
-          // enviroment for in this closure
-          return function() {
-            todos.remove(index);
-          };
-        }(i));
+          edit.addOnBlurListener(function(i, li, edit) {
+            return function() {
+              var text = edit.getText();
+              // Only add non-empty tasks, note that trim() is not supported
+              // by IE <= 8 but since this is an TodoMVC app, that is okay
+              var trimmedText = text.trim();
+              if(trimmedText !== "") {
+                li.removeStyleName("editing");
+                todos.get(i).setValue(trimmedText);
+                window.nc.postNotification("refresh", filter);
+              } else {
+                todos.remove(i);
+                window.nc.postNotification("refresh", filter);
+              }
+            };
+          }(i, li, edit));
 
-        view.add(checkBox);
-        view.add(todoLabel);
-        view.add(destroyButton);
-        li.add(view);
-        li.add(edit); 
-        ul.add(li);
+          // Trigger the blur event with enter.
+          edit.addEnterListener(function(edit) {
+            return function() {
+              edit.getElement().blur();
+            }
+          }(edit));
+
+          var todoLabel = new DoubleClickLabel(todo.getValue());
+          todoLabel.addDoubleClickListener(function(li, edit) {
+            // The return statement is put here in order to create a new referncing
+            // enviroment for in this closure
+            return function() {
+              // This div shows the edit box
+              li.setStyleName("editing");
+              edit.getElement().focus();
+            };
+          }(li, edit));
+
+          var destroyButton = new FocusWidget(html.button({"class":"destroy"}));
+          destroyButton.addMouseDownListener(function(index) {
+            // The return statement is put here in order to create a new referncing
+            // enviroment for in this closure
+            return function() {
+              todos.remove(index);
+              window.nc.postNotification("refresh", filter);
+            };
+          }(i));
+
+          view.add(checkBox);
+          view.add(todoLabel);
+          view.add(destroyButton);
+          li.add(view);
+          li.add(edit); 
+          ul.add(li);
+        }
+        this.add(ul);
       }
-      this.add(ul);
     }
-  }
+          }
 });
 
 var footerView = FlowPanel.extend({
@@ -304,17 +313,17 @@ var footerView = FlowPanel.extend({
     var that = this;
     this._super();
     this.setId("footer");
-    this.render();
 
-    window.nc.addListener("refresh", function() {
-      that.render();
+    window.nc.addListener("refresh", function(filter) {
+      that.render(filter);
     });
   },
-  render: function() {
+  render: function(filter) {
     //If there are no items, hide me
     if(todos.size() === 0) {
       this.setVisible(false);
     } else {
+      var filter = filter || '';
       this.clear();
       this.setVisible(true);
       todoCounter = new Widget();
@@ -327,19 +336,36 @@ var footerView = FlowPanel.extend({
         text += "s";
       text += " left";
       DOM.setInnerHTML(todoCounter.getElement(), text);
-      
       this.add(todoCounter);  
-      
+
+      var ul = new FlowPanel();
+      ul.setElement(html.ul());
+      ul.setId("filters");
+
+      var links = ["", "active", "completed"];
+      var names = ["All", "Active", "Completed"];
+      for (i = 0; i< links.length; i++) {
+        var li = new FlowPanel(); 
+        li.setElement(html.li());
+        var link = new Link(['<a href="#/'+ links[i] +'">'+ names[i] +'</a>']);
+        if (links[i] === filter) 
+          link.setStyleName("selected");
+        li.add(link);
+        ul.add(li);
+      }
+      this.add(ul);
+    
       if(completedItems > 0) {
         var clearCompleted = new Button("Clear completed(" + completedItems + ")",
-            function() {
-              todos.clearCompleted();
-            });
+          function() {
+            todos.clearCompleted();
+            window.nc.postNotification("refresh", filter);
+          });
         clearCompleted.setId("clear-completed");
 
         this.add(clearCompleted);
-      }
-    }
+        }
+     }
   }
 });
 
@@ -374,4 +400,29 @@ $(document).ready(function() {
 
   root.add(todoApp);
   root.add(info);
+
+	var HashFactory = HashFactoryBase.extend({
+		init: function() {
+			//This object handles all the actual flows in application thru set hash bong states
+			//Syntax in URL: exampleApp.se/appname#!state|data
+			//Example: exampleApp.se/hotels#!product|london/hilton/123451
+			var self = this;
+			this._super();
+
+			$(window).bind('hashchange', function() {
+        // Refresh the views with the '', 'active' or 'completed parameters
+				window.nc.postNotification("refresh", self.parseURL());
+      });
+      // Do the same for the initial load of the page.
+  		window.nc.postNotification("refresh", self.parseURL());
+		},
+		parseURL: function() {
+			var hash = window.location.hash;
+      //remove the first #/ part
+			hash = hash.slice(2, hash.length);
+      return hash;
+    }
+	});
+
+	window.hf = new HashFactory();
 });
