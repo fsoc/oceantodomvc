@@ -1,36 +1,30 @@
 var ENTER_KEY = 13;
-var Todo = Class.extend({
-  init: function(value) {
-    this.value = value;
-    this.completed = false;
-  },
-  isCompleted: function() {
-    return this.completed;
-  },
-  toggleCompleted: function() {
-    if(this.completed) {
-      this.completed = false;
-    } else {
-      this.completed = true;
-    }
-  },
-  setCompleted: function(completed) {
-    this.completed = completed;
-  },
-  getValue: function() {
-    return this.value;
-  },
-  setValue: function(data) {
-    this.value = data;
-  }
-});
 
 var TodoList = Class.extend({
   init: function() {
     this.todos = [];
   },
   add: function(todo) {
-    this.todos.push(todo);
+    this.todos.push({
+      id: this.uuid(),
+      value: todo,
+      completed: false});
+  },
+  // Random (unique) uid, code stolen from TodoMVC jQuery impl.
+  uuid: function () {
+    /*jshint bitwise:false */
+    var i, random;
+    var uuid = '';
+
+    for (i = 0; i < 32; i++) {
+      random = Math.random() * 16 | 0;
+      if (i === 8 || i === 12 || i === 16 || i === 20) {
+        uuid += '-';
+      }
+      uuid += (i === 12 ? 4 : (i === 16 ? (random & 3 | 8) : random)).toString(16);
+    }
+
+    return uuid;
   },
   get: function(id) {
     return this.todos[id];
@@ -41,7 +35,7 @@ var TodoList = Class.extend({
   // Clear all completed todos, notice that filter only works for IE9+
   clearCompleted: function() {
     this.todos = this.todos.filter(function(todo) {
-      return !todo.isCompleted();
+      return !todo.completed;
     });
   },
   size: function() {
@@ -50,8 +44,9 @@ var TodoList = Class.extend({
   // Use reduce count the completed todos, this only works in IE9+
   amountCompleted: function() { // The function will be called the number of times as the array is 
     // big and the prev will be appended by one if the todo is completed
+
     return this.todos.reduce(function(prev, curr) {
-      if(curr.isCompleted())
+      if(curr.completed)
         return prev+1;
       else
         return prev;
@@ -62,21 +57,18 @@ var TodoList = Class.extend({
   },
   setAllCompleted: function(completed) {
     for(var i=0; i<this.todos.length; i++) {
-      this.todos[i].setCompleted(completed);
+      this.todos[i].completed = completed;
     }
   },
   allTasksCompleted: function() {
-    if(this.amountCompleted() === 0)
+    if(this.amountNotCompleted() === 0)
       return true;
     else 
       return false;
-   }
+  }
 });
 
 var todos = new TodoList();
-// The toggle-all button is not marked as completed
-
-
 // The main reason to extend FocusWidget is to use a special eventListener
 // for the Enter keys.
 var InputBox = FocusWidget.extend({
@@ -165,9 +157,7 @@ var headerView = FlowPanel.extend({
       // by IE <= 8 but since this is an TodoMVC app, that is okay
       var trimmedText = text.trim();
       if(trimmedText !== "") {
-        var todo = new Todo(trimmedText); 
-
-        todos.add(todo);
+        todos.add(trimmedText);
         window.nc.postNotification("refresh", filter);
         input.clear();
       }
@@ -204,7 +194,10 @@ var mainView = FlowPanel.extend({
         toggleAll.getElement().setAttribute("checked","");
       }
       toggleAll.addMouseDownListener(function() {
-        todos.setAllCompleted(!todos.allTasksCompleted());
+        if(todos.allTasksCompleted())
+          todos.setAllCompleted(false);
+        else
+          todos.setAllCompleted(true);
         window.nc.postNotification("refresh", filter);
       });
 
@@ -221,7 +214,7 @@ var mainView = FlowPanel.extend({
       for(var i=0; i< todos.size(); i++) {
         var todo = todos.get(i);
 
-        if ( (filter === "") || (filter === "active" && !todo.isCompleted()) || (filter === "completed" && todo.isCompleted()) ) {
+        if ( (filter === "") || (filter === "active" && !todo.completed) || (filter === "completed" && todo.completed) ) {
           var li = new FlowPanel();
           li.setElement(html.li());
 
@@ -233,13 +226,17 @@ var mainView = FlowPanel.extend({
             // The return statement is put here in order to create a new referncing
             // enviroment for in this closure
             return function() {
-              currentTodo.toggleCompleted();
+              if(currentTodo.completed) {
+                currentTodo.completed = false;
+              } else {
+                currentTodo.completed = true;
+              }
               window.nc.postNotification("refresh", filter);
             };
           }(todo));
 
           // add styles and attributes for checked tasks
-          if(todo.isCompleted()) {
+          if(todo.completed) {
             li.setStyleName("completed");
             // TODO: investigate why the setAttr cannot be called with the second 
             // argument as the empty string
@@ -248,7 +245,7 @@ var mainView = FlowPanel.extend({
 
           var edit = new InputBox();
           edit.setStyleName("edit");
-          edit.setText(todo.getValue());
+          edit.setText(todo.value);
 
           edit.addOnBlurListener(function(i, li, edit) {
             return function() {
@@ -258,7 +255,7 @@ var mainView = FlowPanel.extend({
               var trimmedText = text.trim();
               if(trimmedText !== "") {
                 li.removeStyleName("editing");
-                todos.get(i).setValue(trimmedText);
+                todos.get(i).value = trimmedText;
                 window.nc.postNotification("refresh", filter);
               } else {
                 todos.remove(i);
@@ -274,7 +271,7 @@ var mainView = FlowPanel.extend({
             }
           }(edit));
 
-          var todoLabel = new DoubleClickLabel(todo.getValue());
+          var todoLabel = new DoubleClickLabel(todo.value);
           todoLabel.addDoubleClickListener(function(li, edit) {
             // The return statement is put here in order to create a new referncing
             // enviroment for in this closure
@@ -331,6 +328,7 @@ var footerView = FlowPanel.extend({
 
       var notCompletedItems = todos.amountNotCompleted();
       var completedItems = todos.amountCompleted();
+
       var text = "<strong>" + notCompletedItems + "</strong> item";
       if(notCompletedItems > 1)
         text += "s";
