@@ -27,11 +27,15 @@ _If you have other helpful links to share, or find any of the links above no lon
 
 This app uses an Object Oriented approach to implement TodoMVC. The different parts of the application knows mainly about themselves and communicate via eventlisteners.
 
+The naming of the files are inspired from other TodoMVC implementations for clarity and generally works like this: The view builds up the html elements and assigns listeners where needed that communicate via a messaging system to the controller that is in charge of modifying the model and refresh the view.
+
 ## Running
 
 After checking out the project, remember to include the oceanfront submodule.
-´´´git submodule init
-´´´git submodule update
+```
+git submodule init
+git submodule update
+```
 
 And open index.html
 
