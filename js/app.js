@@ -275,7 +275,6 @@ var mainView = FlowPanel.extend({
               // by IE <= 8 but since this is an TodoMVC app, that is okay
               var trimmedText = text.trim();
               if(trimmedText !== "") {
-                li.removeStyleName("editing");
                 todos.get(i).value = trimmedText;
                 window.nc.postNotification("refresh", filter);
               } else {
