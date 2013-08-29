@@ -50,8 +50,8 @@ var mainView = FlowPanel.extend({
 
       var toggleAll = new FocusWidget(html.input({"id":"toggle-all","type":"checkbox"})); 
       if(todos.allTasksCompleted()) {
-        // We need to use this since the UIObjects setAttr doesnt work. TODO 
-        toggleAll.getElement().setAttribute("checked","");
+        // We need to use this since the UIObjects setAttr doesnt work with one parameter only. TODO 
+        toggleAll.setAttr("checked","true");
       }
       toggleAll.addMouseDownListener(toggleAllTodos(filter));
 
@@ -80,8 +80,7 @@ var mainView = FlowPanel.extend({
           // add styles and attributes for checked tasks
           if(todo.completed) {
             li.setStyleName("completed");
-            // TODO: investigate why the setAttr cannot be called with the second 
-            // argument as the empty string
+            // We need to use this since the UIObjects setAttr doesnt work with one parameter only. TODO 
             checkBox.setAttr("checked","true");
           }
 
