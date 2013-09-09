@@ -43,19 +43,6 @@ var addTodo = function(input, filter) {
   }
 };
 
-var toggleTodo = function(currentTodo, filter) {
-  // The return statement is put here in order to create a new referncing
-  // enviroment for in this closure
-  return function() {
-    if(currentTodo.completed) {
-      currentTodo.completed = false;
-    } else {
-      currentTodo.completed = true;
-    }
-    window.nc.postNotification("refresh", filter);
-  };
-};
-
 var clearCompletedTodos = function(filter) {
   return function() {
     todos.clearCompleted();

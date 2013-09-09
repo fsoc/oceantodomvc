@@ -74,8 +74,7 @@ var mainView = FlowPanel.extend({
           var view = new FlowPanel();
           view.setStyleName("view");
 
-          var checkBox = new FocusWidget(html.input({"type":"checkbox","class":"toggle"}));
-          checkBox.addMouseDownListener(toggleTodo(todo, filter));
+          var checkBox = new CheckBox(todo, filter);
 
           // add styles and attributes for checked tasks
           if(todo.completed) {

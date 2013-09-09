@@ -56,3 +56,20 @@ var DoubleClickLabel = FocusWidget.extend({
   },
 
 });
+
+var CheckBox = FocusWidget.extend({
+  init: function(todo, filter) {
+    this._super(html.input({"type":"checkbox","class":"toggle"}));
+    this.addMouseDownListener(this.toggleTodo(todo, filter));
+  },
+  toggleTodo: function(todo, filter) {
+    return function() {
+      if(todo.completed) {
+        todo.completed = false;
+      } else {
+        todo.completed = true;
+      }
+      window.nc.postNotification("refresh", filter);
+    };
+  },
+});
