@@ -61,5 +61,8 @@ var CheckBox = FocusWidget.extend({
   init: function(todo, filter) {
     this._super(html.input({"type":"checkbox","class":"toggle"}));
     this.addMouseDownListener(toggleTodo(todo, filter));
+    if (todo.completed) {
+      this.setAttr("checked","true");
+    }
   },
 });

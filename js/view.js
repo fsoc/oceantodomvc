@@ -80,7 +80,6 @@ var mainView = FlowPanel.extend({
           if(todo.completed) {
             li.setStyleName("completed");
             // We need to use this since the UIObjects setAttr doesnt work with one parameter only. TODO 
-            checkBox.setAttr("checked","true");
           }
 
           var edit = new InputBox();
