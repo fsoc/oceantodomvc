@@ -14,14 +14,10 @@ var headerView = FlowPanel.extend({
     var h1 = new Header1(["todos"]);
     this.add(h1);
 
-    var input = new InputBox();
+    var input = new InputBox(filter);
     input.setAttr("placeholder","What needs to be done?");
     input.setAttr("autofocus","autofocus");
     input.setId("new-todo");
-
-    input.addEnterListener(function() {
-      addTodo(input.getText(), filter);
-    });
 
     this.add(input);
     input.getElement().focus();
@@ -79,35 +75,14 @@ var mainView = FlowPanel.extend({
           // add styles and attributes for checked tasks
           if(todo.completed) {
             li.setStyleName("completed");
-            // We need to use this since the UIObjects setAttr doesnt work with one parameter only. TODO 
           }
 
-          var edit = new InputBox();
+          var edit = new EditBox(i, li, filter, todo);
           edit.setStyleName("edit");
-          edit.setText(todo.value);
 
-          edit.addOnBlurListener(editTodo(i,li,edit,filter));
+          var todoLabel = new DoubleClickLabel(todo, li, edit);
 
-          // Trigger the blur event with enter.
-          edit.addEnterListener(function(edit) {
-            return function() {
-              edit.getElement().blur();
-            }
-          }(edit));
-
-          var todoLabel = new DoubleClickLabel(todo.value);
-          todoLabel.addDoubleClickListener(function(li, edit) {
-            // The return statement is put here in order to create a new referncing
-            // enviroment for in this closure
-            return function() {
-              // This div shows the edit box
-              li.setStyleName("editing");
-              edit.getElement().focus();
-            };
-          }(li, edit));
-
-          var destroyButton = new FocusWidget(html.button({"class":"destroy"}));
-          destroyButton.addMouseDownListener(deleteTodo(i, filter));
+          var destroyButton = new DestroyButton(i, filter);
 
           view.add(checkBox);
           view.add(todoLabel);

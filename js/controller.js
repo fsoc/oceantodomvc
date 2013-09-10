@@ -16,6 +16,7 @@ var editTodo  = function(i, li, edit, filter) {
 
 var deleteTodo = function(index, filter) {
   // The return statement is put here in order to create a new referncing
+  //
   // enviroment for in this closure
   return function() {
     todos.remove(index);

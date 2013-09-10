@@ -1,6 +1,4 @@
-// The main reason to extend FocusWidget is to use a special eventListener
-// for the Enter keys.
-var InputBox = FocusWidget.extend({
+var InputBoxBase = FocusWidget.extend({
   init: function() {
     // This function exists because createInputElement contains
     // deprecated jQuery code.
@@ -39,22 +37,54 @@ var InputBox = FocusWidget.extend({
   }
 });
 
+var InputBox = InputBoxBase.extend({
+  init: function(filter) {
+    this._super();
+    this.addEnterListener(function() {
+      addTodo(this.getText(), filter);
+    });
+  }
+});
+
+var EditBox = InputBoxBase.extend({
+  init: function(i, li, filter, todo) {
+    this._super();
+    this.setText(todo.value);
+    this.addOnBlurListener(editTodo(i,li,this,filter));
+
+    // Trigger the blur event with enter.
+    this.addEnterListener(function(edit) {
+      return function() {
+        edit.getElement().blur();
+      }
+    }(this));
+  }
+});
+
 var DoubleClickLabel = FocusWidget.extend({
-  init: function(value) {
-    this._super(html.label(value));
+  init: function(todo, li, edit) {
+    this._super(html.label(todo.value));
     this.sinkEvents(Event.ONDBLCLICK);
+
+    this.addDoubleClickListener(function(li, edit) {
+      // The return statement is put here in order to create a new referncing
+      // enviroment for in this closure
+      return function() {
+        // This div shows the edit box
+        li.setStyleName("editing");
+        edit.getElement().focus();
+      };
+    }(li, edit));
   }, 
   addDoubleClickListener: function(listener) {
-    this.doubleClickListener =listener;
+    this.doubleClickListener = listener;
     return this;
   },
   onBrowserEvent: function(event) {
     if (this.doubleClickListener) {
       this.doubleClickListener(this, event);
-
     }
   },
-
 });
 
 var CheckBox = FocusWidget.extend({
@@ -65,4 +95,11 @@ var CheckBox = FocusWidget.extend({
       this.setAttr("checked","true");
     }
   },
+});
+
+var DestroyButton = FocusWidget.extend({
+  init: function(i, filter) {
+    this._super(html.button({"class":"destroy"}));
+    this.addMouseDownListener(deleteTodo(i, filter));
+  }
 });
