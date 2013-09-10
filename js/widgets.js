@@ -56,7 +56,7 @@ var EditBox = InputBoxBase.extend({
     this.addEnterListener(function(edit) {
       return function() {
         edit.getElement().blur();
-      }
+      };
     }(this));
   }
 });

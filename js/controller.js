@@ -61,6 +61,6 @@ var clearCompletedTodos = function(filter) {
   return function() {
     todos.clearCompleted();
     window.nc.postNotification("refresh", filter);
-  }
-}
+  };
+};
 

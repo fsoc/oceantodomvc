@@ -201,7 +201,7 @@ $(document).ready(function() {
 				window.nc.postNotification("refresh", self.parseURL());
       });
       // Do the same for the initial load of the page.
-  		window.nc.postNotification("refresh", self.parseURL());
+    window.nc.postNotification("refresh", self.parseURL());
 		},
 		parseURL: function() {
 			var hash = window.location.hash;
