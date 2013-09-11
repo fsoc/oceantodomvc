@@ -122,7 +122,7 @@ var footerView = FlowPanel.extend({
       var completedItems = todos.amountCompleted();
 
       var text = "<strong>" + notCompletedItems + "</strong> item";
-      if(notCompletedItems > 1)
+      if ((notCompletedItems > 1) || (notCompletedItems === 0))
         text += "s";
       text += " left";
       DOM.setInnerHTML(todoCounter.getElement(), text);
