@@ -33,7 +33,7 @@ The naming of the files are inspired from other TodoMVC implementations for clar
 
 There are automatic tests running on [Travis](https://travis-ci.org/4lt4i/oceantodomvc) at every commit, and the status is:
 
-[status](https://api.travis-ci.org/4lt4i/oceantodomvc.png)
+![status](https://api.travis-ci.org/4lt4i/oceantodomvc.png)
 
 ## Running
 
