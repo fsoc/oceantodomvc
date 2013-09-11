@@ -16,7 +16,7 @@ casper.then(function () {
 
   this.assertLeftItemsString("1 item left", "Left todo list count is 1");
 
-  this.test.assertEquals(this.fetchText("#todo-list li:first-child label"), "Some Task", "First todo is "Some Task"");
+  this.test.assertEquals(this.fetchText("#todo-list li:first-child label"), "Some Task", "First todo is Some Task");
 
   this.test.assertVisible("#main", "#main section is displayed");
   this.test.assertVisible("#toggle-all", "#toggle-all checkbox is displayed");
@@ -32,7 +32,7 @@ casper.then(function () {
 
   this.assertLeftItemsString("2 items left", "Left todo list count is 2");
 
-  this.test.assertEquals(this.fetchText("#todo-list li:nth-child(2) label"), "Some Another Task", "Second todo is "Some Another Task"");
+  this.test.assertEquals(this.fetchText("#todo-list li:nth-child(2) label"), "Some Another Task", "Second todo is Some Another Task");
 });
 
 // Create a third todo and complete second
