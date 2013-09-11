@@ -39,6 +39,18 @@ git submodule update
 
 And open index.html
 
+## Testing
+Install [casperjs](http://casperjs.org) and run:
+
+```
+casperjs test todo.js
+```
+
+And open index.html
+
+## Testing
+Install [casperjs](http://casperjs.org) and run:
+
 ## Credit
 
 This TodoMVC application was created by [4lt4i](https://github.com/4lt4i).
