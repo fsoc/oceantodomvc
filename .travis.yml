@@ -1,2 +1,4 @@
+before_script:
+ - chmod +x run_tests
 script:
  - ./run_tests.rb
