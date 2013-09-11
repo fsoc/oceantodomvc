@@ -29,6 +29,12 @@ This app uses an Object Oriented approach to implement TodoMVC. The different pa
 
 The naming of the files are inspired from other TodoMVC implementations for clarity and generally works like this: The view builds up the html elements and assigns listeners where needed that communicate via a messaging system to the controller that is in charge of modifying the model and refresh the view.
 
+## CI
+
+There are automatic tests running on [Travis](https://travis-ci.org/4lt4i/oceantodomvc) at every commit, and the status is:
+
+[status](https://api.travis-ci.org/4lt4i/oceantodomvc.png)
+
 ## Running
 
 After checking out the project, remember to include the oceanfront submodule.
