@@ -43,7 +43,7 @@ And open index.html
 Install [casperjs](http://casperjs.org) and run:
 
 ```
-casperjs test todo.js
+casperjs test tests/testcases/ --includes=tests/inc.js
 ```
 
 ## Credit
