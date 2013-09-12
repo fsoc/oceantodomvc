@@ -44,7 +44,7 @@ var TodoList = Class.extend({
     // big and the prev will be appended by one if the todo is completed
 
     return this.todos.reduce(function(prev, curr) {
-      if(curr.completed)
+      if (curr.completed)
         return prev+1;
       else
         return prev;
@@ -59,7 +59,7 @@ var TodoList = Class.extend({
     }
   },
   allTasksCompleted: function() {
-    if(this.amountNotCompleted() === 0)
+    if (this.amountNotCompleted() === 0)
       return true;
     else 
       return false;

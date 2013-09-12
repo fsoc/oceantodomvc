@@ -36,7 +36,7 @@ var mainView = FlowPanel.extend({
   },
   render: function(filter) {
     //If there are no items, hide me
-    if(todos.size() === 0) {
+    if (todos.size() === 0) {
       this.setVisible(false);
     } else {
       var filter = filter || '';
@@ -45,7 +45,7 @@ var mainView = FlowPanel.extend({
       // This is an ugly version in use because there is no framework support for this
 
       var toggleAll = new FocusWidget(html.input({"id":"toggle-all","type":"checkbox"})); 
-      if(todos.allTasksCompleted()) {
+      if (todos.allTasksCompleted()) {
         // We need to use this since the UIObjects setAttr doesnt work with one parameter only. TODO 
         toggleAll.setAttr("checked","true");
       }
@@ -73,7 +73,7 @@ var mainView = FlowPanel.extend({
           var checkBox = new CheckBox(todo, filter);
 
           // add styles and attributes for checked tasks
-          if(todo.completed) {
+          if (todo.completed) {
             li.setStyleName("completed");
           }
 
@@ -109,7 +109,7 @@ var footerView = FlowPanel.extend({
   },
   render: function(filter) {
     //If there are no items, hide me
-    if(todos.size() === 0) {
+    if (todos.size() === 0) {
       this.setVisible(false);
     } else {
       var filter = filter || '';
@@ -145,7 +145,7 @@ var footerView = FlowPanel.extend({
       }
       this.add(ul);
     
-      if(completedItems > 0) {
+      if (completedItems > 0) {
         var clearCompleted = new Button("Clear completed(" + completedItems + ")",
         clearCompletedTodos(filter));
         clearCompleted.setId("clear-completed");
