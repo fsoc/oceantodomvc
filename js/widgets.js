@@ -38,19 +38,19 @@ var InputBoxBase = FocusWidget.extend({
 });
 
 var InputBox = InputBoxBase.extend({
-  init: function(filter) {
+  init: function() {
     this._super();
     this.addEnterListener(function() {
-      addTodo(this.getText(), filter);
+      addTodo(this.getText());
     });
   }
 });
 
 var EditBox = InputBoxBase.extend({
-  init: function(i, li, filter, todo) {
+  init: function(i, li, todo) {
     this._super();
     this.setText(todo.value);
-    this.addOnBlurListener(editTodo(i,li,this,filter));
+    this.addOnBlurListener(editTodo(i,li,this));
 
     // Trigger the blur event with enter.
     this.addEnterListener(function(edit) {
@@ -88,9 +88,9 @@ var DoubleClickLabel = FocusWidget.extend({
 });
 
 var CheckBox = FocusWidget.extend({
-  init: function(todo, filter) {
+  init: function(todo) {
     this._super(html.input({"type":"checkbox","class":"toggle"}));
-    this.addMouseDownListener(toggleTodo(todo, filter));
+    this.addMouseDownListener(toggleTodo(todo));
     if (todo.completed) {
       this.setAttr("checked","true");
     }
@@ -98,8 +98,8 @@ var CheckBox = FocusWidget.extend({
 });
 
 var DestroyButton = FocusWidget.extend({
-  init: function(i, filter) {
+  init: function(i) {
     this._super(html.button({"class":"destroy"}));
-    this.addMouseDownListener(deleteTodo(i, filter));
+    this.addMouseDownListener(deleteTodo(i));
   }
 });

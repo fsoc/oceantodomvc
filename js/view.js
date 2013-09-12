@@ -1,20 +1,22 @@
+// The filter variable that controls if and how we filter the todos
+var filter = "";
+
 var headerView = FlowPanel.extend({
   init: function() {
     var that = this;
     this._super();
     this.setId("header");
 
-    window.nc.addListener("refresh", function(filter) {
-      that.render(filter);
+    window.nc.addListener("refresh", function() {
+      that.render();
     });
  },
-  render: function(filter) {
-    var filter = filter || '';
+  render: function() {
     this.clear();
     var h1 = new Header1(["todos"]);
     this.add(h1);
 
-    var input = new InputBox(filter);
+    var input = new InputBox();
     input.setAttr("placeholder","What needs to be done?");
     input.setAttr("autofocus","autofocus");
     input.setId("new-todo");
@@ -30,26 +32,25 @@ var mainView = FlowPanel.extend({
     this._super();
     this.setId("main");
 
-    window.nc.addListener("refresh", function(filter) {
-      that.render(filter);
+    window.nc.addListener("refresh", function() {
+      that.render();
     });
   },
-  render: function(filter) {
-    //If there are no items, hide me
+  render: function() {
+    // If there are no items, hide me
     if (todos.size() === 0) {
       this.setVisible(false);
     } else {
-      var filter = filter || '';
       this.clear();
       this.setVisible(true);
       // This is an ugly version in use because there is no framework support for this
 
       var toggleAll = new FocusWidget(html.input({"id":"toggle-all","type":"checkbox"})); 
       if (todos.allTasksCompleted()) {
-        // We need to use this since the UIObjects setAttr doesnt work with one parameter only. TODO 
+        // We need to use this since the UIObjects setAttr doesnt work with one parameter only. 
         toggleAll.setAttr("checked","true");
       }
-      toggleAll.addMouseDownListener(toggleAllTodos(filter));
+      toggleAll.addMouseDownListener(toggleAllTodos());
 
       this.add(toggleAll);
 
@@ -70,19 +71,19 @@ var mainView = FlowPanel.extend({
           var view = new FlowPanel();
           view.setStyleName("view");
 
-          var checkBox = new CheckBox(todo, filter);
+          var checkBox = new CheckBox(todo);
 
           // add styles and attributes for checked tasks
           if (todo.completed) {
             li.setStyleName("completed");
           }
 
-          var edit = new EditBox(i, li, filter, todo);
+          var edit = new EditBox(i, li, todo);
           edit.setStyleName("edit");
 
           var todoLabel = new DoubleClickLabel(todo, li, edit);
 
-          var destroyButton = new DestroyButton(i, filter);
+          var destroyButton = new DestroyButton(i);
 
           view.add(checkBox);
           view.add(todoLabel);
@@ -94,7 +95,7 @@ var mainView = FlowPanel.extend({
         this.add(ul);
       }
     }
-          }
+  }
 });
 
 var footerView = FlowPanel.extend({
@@ -103,16 +104,15 @@ var footerView = FlowPanel.extend({
     this._super();
     this.setId("footer");
 
-    window.nc.addListener("refresh", function(filter) {
-      that.render(filter);
+    window.nc.addListener("refresh", function() {
+      that.render();
     });
   },
-  render: function(filter) {
+  render: function() {
     //If there are no items, hide me
     if (todos.size() === 0) {
       this.setVisible(false);
     } else {
-      var filter = filter || '';
       this.clear();
       this.setVisible(true);
       todoCounter = new Widget();
@@ -191,17 +191,18 @@ $(document).ready(function() {
 	var HashFactory = HashFactoryBase.extend({
 		init: function() {
 			//This object handles all the actual flows in application thru set hash bong states
-			//Syntax in URL: exampleApp.se/appname#!state|data
-			//Example: exampleApp.se/hotels#!product|london/hilton/123451
+			//Syntax in URL: exampleApp.se/filter
 			var self = this;
 			this._super();
 
 			$(window).bind('hashchange', function() {
-        // Refresh the views with the '', 'active' or 'completed parameters
-				window.nc.postNotification("refresh", self.parseURL());
+        // Refresh the views with the '', 'active' or 'completed' parameters
+        filter = self.parseURL();
+				window.nc.postNotification("refresh");
       });
       // Do the same for the initial load of the page.
-    window.nc.postNotification("refresh", self.parseURL());
+    filter = self.parseURL();
+    window.nc.postNotification("refresh");
 		},
 		parseURL: function() {
 			var hash = window.location.hash;

@@ -3,7 +3,7 @@ var DB_NAME = "todos-ocean";
 
 var Storage = Class.extend({
   init: function() {
-    window.nc.addListener("refresh", function(filter) {
+    window.nc.addListener("refresh", function() {
       storage.store(todos.getData());
     });
   },
