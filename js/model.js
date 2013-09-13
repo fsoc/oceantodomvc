@@ -69,5 +69,4 @@ var TodoList = Class.extend({
   }
 });
 
-var todos = new TodoList();
 

@@ -1,5 +1,6 @@
 // The filter variable that controls if and how we filter the todos
 var filter = "";
+var todos = todos || new TodoList();
 
 var headerView = FlowPanel.extend({
   init: function() {

@@ -1,3 +1,5 @@
+var todos = todos || new TodoList();
+
 var editTodo  = function(i, li, edit) {
   return function() {
     var text = edit.getText();
