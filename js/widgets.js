@@ -42,6 +42,7 @@ var InputBox = InputBoxBase.extend({
     this._super();
     this.addEnterListener(function() {
       addTodo(this.getText());
+      this.setText("");
     });
   }
 });

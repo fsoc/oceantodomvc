@@ -7,7 +7,7 @@ var headerView = FlowPanel.extend({
     this._super();
     this.setId("header");
 
-    window.nc.addListener("refresh", function() {
+    window.nc.addListener("header-refresh", function() {
       that.render();
     });
  },
@@ -203,6 +203,7 @@ $(document).ready(function() {
       // Do the same for the initial load of the page.
     filter = self.parseURL();
     window.nc.postNotification("refresh");
+    window.nc.postNotification("header-refresh");
 		},
 		parseURL: function() {
 			var hash = window.location.hash;
