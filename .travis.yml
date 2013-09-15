@@ -2,6 +2,6 @@ before_script:
  - chmod +x run_tests.rb
 script:
  - ./run_tests.rb
- branches:
-   except:
-       - grunt
+branches:
+  except:
+    - grunt
