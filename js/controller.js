@@ -17,8 +17,7 @@ var editTodo  = function(i, li, edit) {
 };
 
 var deleteTodo = function(index) {
-  // The return statement is put here in order to create a new referncing
-  //
+  // The return statement is put here in order to create a new referencing
   // enviroment for in this closure
   return function() {
     todos.remove(index);
